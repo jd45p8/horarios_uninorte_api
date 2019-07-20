@@ -2,24 +2,13 @@ const http = require('http')
 const os = require('os')
 const url = require('url')
 const routes = require('./routes').routes
+const errors = require('./utils/errors').errors
 
 const routeNames = Object.keys(routes)
 const nics = os.networkInterfaces()
 const port = process.env.PORT || 8080
 const hostnames = Object.keys(nics).map(
     hostname => nics[hostname][0].address)
-
-const noFound = (res) => {
-    res.statusCode = 404
-    res.setHeader('Content-type', 'text/html')
-    res.end('<h1>404, path not found!</h1>')
-}
-
-const methodNotAllowed = (res) => {
-    res.statusCode = 405
-    res.setHeader('Content-type', 'text/html')
-    res.end('<h1>405, method not allowed!</h1>')
-}
 
 const server = http.createServer((req, res) => {
     const urlParsed = url.parse(req.url)
@@ -33,10 +22,10 @@ const server = http.createServer((req, res) => {
             const method = routes[urlParsed.pathname].methods[req.method]
             method(req,res)
         } else {
-            methodNotAllowed(res)
+            errors.methodNotAllowed(res)
         }
     } else {
-        noFound(res)
+        errors.notFound(res)
     }
 
 })
