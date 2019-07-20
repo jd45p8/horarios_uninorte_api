@@ -6,13 +6,13 @@ const url = require('url')
 
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
-exports.asignaturas_all = {
+exports.grupos_all = {
     methods: {
         /**
-         * Retorna todas las asignaturas dados y el periodo y el nivel educativo, 
-         * ejemplo: /asignaturas?period=201930&level=PR
-         * period: es el periodo para el cuál se necesitan las asignaturas,
-         * level: es el grado educativo que cursan quienes se inscribirán en la asignatura, de la siguiente manera:
+         * Retorna todos los grupos dados y el periodo y el nivel educativo, 
+         * ejemplo: /grupos/all?period=201930&level=PR
+         * period: es el periodo para el cuál se necesitan las grupos,
+         * level: es el grado educativo que cursan quienes se inscribirán en los grupos, de la siguiente manera:
          * PR: 'Pregrado'
          * PG: 'Postgrado'
          * EC: 'Educación Continua'
@@ -52,16 +52,16 @@ exports.asignaturas_all = {
                         }
                     })
 
-                    let asig = {}
+                    let grp = {}
                     let index = 0;
                     try {
                         await Promise.all(dep.map(async (elem) => {
                             data['departamento'] = elem
                             const query = querystring.stringify(data)
                                    
-                            let asig_new = await getAsignaturas(query)
-                            Object.keys(asig_new).map(elem => {
-                                asig[index] = asig_new[elem]
+                            let cur_new = await getGrupos(query)
+                            Object.keys(cur_new).map(elem => {
+                                grp[index] = cur_new[elem]
                                 index++
                             })
 
@@ -74,7 +74,7 @@ exports.asignaturas_all = {
 
                     res.statusCode = 200
                     res.setHeader('Content-type', 'application/json; charset=utf-8')
-                    res.write(JSON.stringify(asig))
+                    res.write(JSON.stringify(grp))
                     res.end()
                     return
                 })
@@ -90,7 +90,7 @@ exports.asignaturas_all = {
     }
 }
 
-function getAsignaturas(query) {
+function getGrupos(query) {
     const options = {
         hostname: 'guayacan.uninorte.edu.co',
         port: 443,
@@ -113,19 +113,19 @@ function getAsignaturas(query) {
                 const html = Buffer.concat(chunks)
 
                 const $ = cheerio.load(html)
-                let asig = {}
+                let grp = {}
                 $('#programa option').each((i, elem) => {
                     if (i != 0) {
                         const details = $(elem).text().split('-')
-                        asig[i - 1] = {
-                            code: details[details.length - 1].trim().slice(0, 3),
+                        grp[i - 1] = {
+                            subj_code: details[details.length - 1].trim().slice(0, 3),
                             course: details[details.length - 1].trim().slice(3),
                             name: details.slice(1, details.length - 1).join('-').trim(),
                             nrc: details[0].trim()
                         }
                     }
                 })
-                resolve(asig)
+                resolve(grp)
             })
         })
 
