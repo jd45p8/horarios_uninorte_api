@@ -8,12 +8,11 @@ const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 exports.grupo_det = {
     methods: {
         /**
-         * Retorna los detalles de un grupo dados el periodo, el nrc y el nivel de la asignatura, 
-         * ejemplo: /grupo/det?nrc=4225&period=201930&level=PR
+         * Retorna los detalles de un grupo dados el periodo, nivel académico de la asignatura Y nrc, 
+         * ejemplo: /grupo/det?nrc=3284&period=201930&level=PR
          * nrc: es el número de referencia del curso, que identifica un grupo,
-         * dep_code: es el código del departamento al que pertenece el grupo,
          * period: es el periodo para el cuál se necesita el grupo,
-         * level: es el grado educativo que cursan quienes se inscribirán en el grupo, de la siguiente manera:
+         * level: es el grado educativo que cursan quienes se inscribirán el curso, de la siguiente manera:
          * PR: 'Pregrado'
          * PG: 'Postgrado'
          * EC: 'Educación Continua'
@@ -66,6 +65,7 @@ exports.grupo_det = {
                         name: det.subject_name,
                         dep_name: det.dep_name.split(':').slice(1).join(' ').trim(),
                         subject: det.det_asign[0].split(':')[1].trim(),
+                        level: det.det_asign[3].split(':')[1].trim(),
                         group_number: det.det_asign[1].split(':')[1].trim(),
                         cupos: {
                             registered: det.cupos[0].split(':')[1].trim(),
@@ -89,19 +89,30 @@ exports.grupo_det = {
                     $('#acreditaciones_resultado > div > div > table > tbody tr').each((i, elem) => {
                         if (i != 0) {
                             const row = $(elem).text().trim().split('\n')
-                            grp_det.schedule.push({
-                                day: row[2],
+                            let new_item = {
+                                day: row[2].trim(),
                                 interval: {
                                     start: row[3].split('-')[0].trim(),
                                     end: row[3].split('-')[1].trim()
                                 },
                                 location: row[4].trim() 
-                            })
+                            }
+
+                            /**
+                             * Evita añadir al horario más de una entrada con lso mismos datos
+                             */
+                            if (!grp_det.schedule.some(item => {
+                                return (item.day == new_item.day &&
+                                    item.interval.end == new_item.interval.end &&
+                                    item.location == new_item.location)
+                            })){
+                                grp_det.schedule.push(new_item)
+                            }
                         }
                     })
 
                     res.statusCode = 200,
-                        res.setHeader('Content-type', 'application/json; charset=utf-8')
+                    res.setHeader('Content-type', 'application/json; charset=utf-8')
                     res.end(JSON.stringify(grp_det))
                     return
                 })
