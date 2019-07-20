@@ -4,7 +4,7 @@ const Iconv = require('iconv').Iconv
 const querystring = require('querystring')
 const url = require('url')
 
-const somethingWentWrong = require('../utils/errors').somethingWentWrong
+const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
 exports.asignaturas_all = {
     methods: {
@@ -40,29 +40,37 @@ exports.asignaturas_all = {
                     chunks.push(data)
                 )
 
-                extRes.on('end', () => {
+                extRes.on('end', async () => {
                     const iconv = new Iconv('ISO-8859-1', 'UTF-8')
                     const html = iconv.convert(Buffer.concat(chunks))
 
                     const $ = cheerio.load(html)
-                    let asig = {}
-                    let index = 0;
-                    $('#departamento option').each(async (i, elem) => {
+                    let dep = []
+                    $('#departamento option').each((i, elem) => {
                         if (i != 0) {
-                            data['departamento'] = $(elem).attr('value')
-                            const query = querystring.stringify(data)
-                            try {
-                                let asig_new = await getAsignaturas(query)
-                                Object.keys(asig_new).map(elem => {
-                                    asig[index] = asig_new[elem]
-                                    index++
-                                })
-                            } catch (error) {
-                                somethingWentWrong(res)
-                                return
-                            }                            
+                            dep[i - 1] = $(elem).attr('value')
                         }
                     })
+
+                    let asig = {}
+                    let index = 0;
+                    try {
+                        await Promise.all(dep.map(async (elem) => {
+                            data['departamento'] = elem
+                            const query = querystring.stringify(data)
+                                   
+                            let asig_new = await getAsignaturas(query)
+                            Object.keys(asig_new).map(elem => {
+                                asig[index] = asig_new[elem]
+                                index++
+                            })
+
+                        }))
+                    } catch (error) {
+                        console.error(error)
+                        somethingWentWrong(res)
+                        return
+                    }
 
                     res.statusCode = 200
                     res.setHeader('Content-type', 'application/json; charset=utf-8')
@@ -94,7 +102,7 @@ function getAsignaturas(query) {
         }
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve,reject) => {
         const extReq = https.request(options, extRes => {
             let chunks = []
             extRes.on('data', data =>

@@ -2,7 +2,7 @@ const https = require('https')
 const cheerio = require('cheerio')
 const querystring = require('querystring')
 const url = require('url')
-const somethingWentWrong = require('../utils/errors').somethingWentWrong
+const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
 exports.asignaturas = {
     methods: {
