@@ -95,7 +95,7 @@ exports.grupo_det = {
                                     start: row[3].split('-')[0].trim(),
                                     end: row[3].split('-')[1].trim()
                                 },
-                                location: row[4].trim() 
+                                location: row[4].trim()
                             }
 
                             /**
@@ -105,14 +105,14 @@ exports.grupo_det = {
                                 return (item.day == new_item.day &&
                                     item.interval.end == new_item.interval.end &&
                                     item.location == new_item.location)
-                            })){
+                            })) {
                                 grp_det.schedule.push(new_item)
                             }
                         }
                     })
 
                     res.statusCode = 200,
-                    res.setHeader('Content-type', 'application/json; charset=utf-8')
+                        res.setHeader('Content-type', 'application/json; charset=utf-8')
                     res.end(JSON.stringify(grp_det))
                     return
                 })
