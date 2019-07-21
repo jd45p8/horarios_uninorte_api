@@ -2,7 +2,9 @@ const https = require('https')
 const cheerio = require('cheerio')
 const querystring = require('querystring')
 const url = require('url')
+
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
+const compensadorÑ = require('../utils/corrector').corrector.compensadorÑ
 
 exports.grupos_dep = {
     methods: {
@@ -56,7 +58,7 @@ exports.grupos_dep = {
                             grp[i - 1] = {
                                 subj_code: details[details.length - 1].trim().slice(0, 3),
                                 course: details[details.length - 1].trim().slice(3),
-                                name: details.slice(1, details.length - 1).join('-').trim(),
+                                name: compensadorÑ(details.slice(1, details.length - 1).join('-').trim()),
                                 nrc: details[0].trim()
                             }
                         }

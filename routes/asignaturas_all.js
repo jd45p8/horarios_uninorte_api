@@ -5,6 +5,7 @@ const querystring = require('querystring')
 const url = require('url')
 
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
+const compensadorÑ = require('../utils/corrector').corrector.compensadorÑ
 
 exports.asignaturas_all = {
     methods: {
@@ -128,6 +129,7 @@ function getAsignaturas(query) {
                                 asg.course == new_asig.course && 
                                 asg.name == new_asig.name)
                         })){
+                            new_asig.name = compensadorÑ(new_asig.name)
                             asig.push(new_asig)
                         }
                     }
