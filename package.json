@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "API para hacer scraping a la aplicación de los horarios de la Universidad del Norte.",
   "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jd45p8/horarios_uninorte_api.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
