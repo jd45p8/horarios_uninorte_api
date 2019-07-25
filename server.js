@@ -11,6 +11,11 @@ const hostnames = Object.keys(nics).map(
     hostname => nics[hostname][0].address)
 
 const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');  
+    res.setHeader('Access-Control-Allow-Headers', '*');    
+    res.setHeader('Access-Control-Max-Age', 2592000);
+
     const urlParsed = url.parse(req.url)
     if (req.url === '/favicon.ico') {
         res.statusCode = 200
@@ -20,7 +25,13 @@ const server = http.createServer((req, res) => {
         const methods = Object.keys(routes[urlParsed.pathname].methods)
         if (methods.includes(req.method)) {
             const method = routes[urlParsed.pathname].methods[req.method]
-            method(req,res)
+            method(req, res)
+        } else if (req.method == 'OPTIONS') {
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'applications/json; charset=utf-8')
+            res.end({
+                methods: 'OPTIONS, GET'
+            })
         } else {
             errors.methodNotAllowed(res)
         }
