@@ -59,11 +59,25 @@ exports.asignaturas_all = {
                         await Promise.all(dep.map(async (elem) => {
                             data['departamento'] = elem
                             const query = querystring.stringify(data)
-                                   
+
                             let cur_new = await getAsignaturas(query)
                             cur_new.map(elem => {
-                                asig[index] = elem
-                                index++
+                                /**
+                                 * Valida si hay departamentos con asignaturas iguales a las de otros de partamentos
+                                 */
+                                let found = false;
+                                for (let key in asig) {
+                                    if (asig[key].subj_code == elem.subj_code &&
+                                        asig[key].course == elem.course) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!found) {
+                                    asig[index] = elem
+                                    index++
+                                }
                             })
 
                         }))
@@ -103,7 +117,7 @@ function getAsignaturas(query) {
         }
     }
 
-    return new Promise((resolve,reject) => {
+    return new Promise((resolve, reject) => {
         const extReq = https.request(options, extRes => {
             let chunks = []
             extRes.on('data', data =>
@@ -119,16 +133,15 @@ function getAsignaturas(query) {
                     if (i != 0) {
                         const details = $(elem).text().split('-')
                         let new_asig = {
-                            subj_code: details[details.length - 1].trim().slice(0, 3),
-                            course: details[details.length - 1].trim().slice(3),
-                            name: details.slice(1, details.length - 1).join('-').trim(),
+                            subj_code: details[details.length - 1].trim().slice(0, 3).trim(),
+                            course: details[details.length - 1].trim().slice(3).trim(),
+                            name: compensadorÑ(details.slice(1, details.length - 1).join('-').trim()),
                         }
 
                         if (!asig.some(asg => {
                             return (asg.subj_code == new_asig.subj_code &&
                                 asg.course == new_asig.course)
-                        })){
-                            new_asig.name = compensadorÑ(new_asig.name)
+                        })) {
                             asig.push(new_asig)
                         }
                     }
