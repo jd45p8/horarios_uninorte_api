@@ -126,8 +126,7 @@ function getAsignaturas(query) {
 
                         if (!asig.some(asg => {
                             return (asg.subj_code == new_asig.subj_code &&
-                                asg.course == new_asig.course && 
-                                asg.name == new_asig.name)
+                                asg.course == new_asig.course)
                         })){
                             new_asig.name = compensadorÑ(new_asig.name)
                             asig.push(new_asig)
