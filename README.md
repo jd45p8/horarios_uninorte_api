@@ -72,6 +72,14 @@ Params:
 - period
 - level
 
+### /grupo/subj_code/det
+Return detailed information about groups related with the same subject code.
+
+Params:
+- subj_code
+- period
+- level
+
 ### /grupos/subj/det
 Return detailed subject groups information.
 
