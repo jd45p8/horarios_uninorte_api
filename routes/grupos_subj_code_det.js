@@ -59,7 +59,7 @@ exports.grupos_subj_code_det = {
                                 subject_name: $('p.msg1', elem).text(),
                                 dep_name: $('p:nth-child(2)', elem).text(),
                                 det_asign: $('p:nth-child(3)', elem).text().split('\n\t\t\t\t'),
-                                cupos: $('p:nth-child(6)', elem).text().split('\n'),
+                                cupos: $('p:nth-child(4)', elem).text().split('\n'),
                                 dates: $('p.msg3', elem).text().split('\n')
                             }
 
