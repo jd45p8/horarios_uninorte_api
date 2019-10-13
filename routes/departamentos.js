@@ -2,6 +2,7 @@ const https = require('https')
 const cheerio = require('cheerio')
 const Iconv = require('iconv').Iconv
 
+const mainFormConsulta = require('../utils/urls').urls.mainFormConsulta
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
 exports.departamentos = {
@@ -11,9 +12,9 @@ exports.departamentos = {
          */
         GET: (req, res) => {
             const options = {
-                hostname: 'guayacan.uninorte.edu.co',
+                hostname: mainFormConsulta.hostname,
                 port: 443,
-                path: '/registro/consulta_horarios.asp',
+                path: mainFormConsulta.path,
                 method: 'GET'
             }
 

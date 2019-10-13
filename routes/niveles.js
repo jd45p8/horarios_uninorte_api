@@ -2,6 +2,7 @@ const https = require('https')
 const cheerio = require('cheerio')
 const Iconv = require('iconv').Iconv
 
+const mainFormConsulta = require('../utils/urls').urls.mainFormConsulta
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
 exports.niveles = {
@@ -11,9 +12,9 @@ exports.niveles = {
          */
         GET: (req, res) => {
             const options = {
-                hostname: 'guayacan.uninorte.edu.co',
+                hostname: mainFormConsulta.hostname,
                 port: 443,
-                path: '/registro/consulta_horarios.asp',
+                path: mainFormConsulta.path,
                 method: 'GET'
             }
 
@@ -24,17 +25,14 @@ exports.niveles = {
                 )
 
                 extRes.on('end', () => {
-                    const iconv = new Iconv('ISO-8859-1', 'UTF-8')
-                    const html = iconv.convert(Buffer.concat(chunks))
+                    const html = Buffer.concat(chunks).toString()
 
                     const $ = cheerio.load(html)
                     let lev = {}
-                    $('#nivel option').each((i, elem) => {
-                        if (i != 0) {
-                            lev[i - 1] = {
-                                level: $(elem).attr('value'),
-                                name: $(elem).text()
-                            }
+                    $('#nivel option').each((i, elem) => {                        
+                        lev[i] = {
+                            level: $(elem).attr('value'),
+                            name: $(elem).text()
                         }
                     })
 

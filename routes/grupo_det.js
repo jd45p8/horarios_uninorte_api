@@ -3,6 +3,8 @@ const cheerio = require('cheerio')
 const querystring = require('querystring')
 const url = require('url')
 const Iconv = require('iconv').Iconv
+
+const byNRCSearch = require('../utils/urls').urls.byNRCSearch
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
 exports.grupo_det = {
@@ -31,9 +33,9 @@ exports.grupo_det = {
             const query = querystring.stringify(data)
 
             const options = {
-                hostname: 'guayacan.uninorte.edu.co',
+                hostname: byNRCSearch.hostname,
                 port: 443,
-                path: '/registro/resultado_nrc1.asp',
+                path: byNRCSearch.path,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -56,10 +58,12 @@ exports.grupo_det = {
                         const det = {
                             subject_name: $('body > div > p.msg1').text(),
                             dep_name: $('body > div > p:nth-child(2)').text(),
-                            det_asign: $('body > div > p:nth-child(3)').text().split('\n\t\t\t'),
-                            cupos: $('body > div > p:nth-child(4)').text().split('\n\t\t\t'),
-                            professors: $('body > div > p.msg5').text().trim().split(':')[1].split('\n\t'),
-                            dates: $('body > div > p.msg3').text().split('\n')
+                            det_asign: $('body > div > p:nth-child(3)').text().split('\t\t'),
+                            cupos: $('body > div > p:nth-child(4)').text().split('\t\t'),
+                            professors: $('body > div > p.msg5').html().match(/>([^<>]|^>)*</gm).map(elem => {
+                                return elem.replace(/>\s*|\s*</g, '')
+                            }),
+                            dates: $('body > div > p.msg3').text().split('\t\t\t\t')
                         }
 
                         let grp_det = {
@@ -80,11 +84,13 @@ exports.grupo_det = {
                             schedule: []
                         }
 
-                        det.professors.map(professor => {
-                            grp_det.professors.push({
-                                first_name: professor.trim().split(',')[1].trim(),
-                                last_name: professor.trim().split(',')[0].trim()
-                            })
+                        det.professors.map((professor, i) => {
+                            if (i > 0) {
+                                grp_det.professors.push({
+                                    first_name: professor.trim().split(',')[1].trim(),
+                                    last_name: professor.trim().split(',')[0].trim()
+                                })
+                            }
                         })
 
                         $('#acreditaciones_resultado > div > div > table > tbody tr').each((i, elem) => {
@@ -114,9 +120,11 @@ exports.grupo_det = {
 
                         res.statusCode = 200,
                         res.setHeader('Content-type', 'application/json; charset=utf-8')
-                        res.end(JSON.stringify(grp_det))
+                        res.write(JSON.stringify(grp_det))
+                        res.end()
                         return
                     } catch (error) {
+                        console.log('nrc: ' + reqData.nrc)
                         console.error(error)
                         somethingWentWrong(res)
                         return

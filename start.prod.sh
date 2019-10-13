@@ -1,1 +1,1 @@
-sudo docker run --rm -it --name="horarios_uninorte_api" horarios_uninorte_api:Dockerfile
+docker run --rm -it --name="horarios_uninorte_api" horarios_uninorte_api:Dockerfile

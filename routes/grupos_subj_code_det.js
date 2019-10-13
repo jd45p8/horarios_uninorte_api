@@ -2,6 +2,8 @@ const https = require('https')
 const url = require('url')
 const querystring = require('querystring')
 const cheerio = require('cheerio')
+
+const byCodeSearch = require('../utils/urls').urls.byCodeSearch
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
 exports.grupos_subj_code_det = {
@@ -32,9 +34,9 @@ exports.grupos_subj_code_det = {
             const query = querystring.stringify(data)
 
             const options = {
-                hostname: 'guayacan.uninorte.edu.co',
+                hostname: byCodeSearch.hostname,
                 port: 443,
-                path: '/registro/resultado_codigo1.asp',
+                path: byCodeSearch.path,
                 method: 'POST',
                 headers: {
                     'Content-Length': Buffer.byteLength(query),
@@ -58,8 +60,8 @@ exports.grupos_subj_code_det = {
                             const det = {
                                 subject_name: $('p.msg1', elem).text(),
                                 dep_name: $('p:nth-child(2)', elem).text(),
-                                det_asign: $('p:nth-child(3)', elem).text().split('\n\t\t\t\t'),
-                                cupos: $('p:nth-child(4)', elem).text().split('\n'),
+                                det_asign: $('p:nth-child(3)', elem).text().split('\t\t\t\t'),
+                                cupos: $('p:nth-child(4)', elem).text().split('\t\t\t\t'),
                                 dates: $('p.msg3', elem).text().split('\n')
                             }
 
@@ -107,8 +109,8 @@ exports.grupos_subj_code_det = {
                                     }
 
                                     let professor = {
-                                        first_name: row[5].split(',')[1].trim(),
-                                        last_name: row[5].split(',')[0].trim()
+                                        first_name: row[5].split('-')[1].trim(),
+                                        last_name: row[5].split('-')[0].trim()
                                     }
 
                                     /**

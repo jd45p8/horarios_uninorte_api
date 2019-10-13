@@ -2,6 +2,7 @@ const https = require('https')
 const cheerio = require('cheerio')
 const Iconv = require('iconv').Iconv
 
+const mainFormaConsulta = require('../utils/urls').urls.mainFormConsulta
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
 exports.periodos = {
@@ -11,9 +12,9 @@ exports.periodos = {
          */
         GET: (req, res) => {
             const options = {
-                hostname: 'guayacan.uninorte.edu.co',
+                hostname: mainFormaConsulta.hostname,
                 port: 443,
-                path: '/registro/consulta_horarios.asp',
+                path: mainFormaConsulta.path,
                 method: 'GET'
             }
 
@@ -24,8 +25,7 @@ exports.periodos = {
                 )
 
                 extRes.on('end', () => {
-                    const iconv = new Iconv('ISO-8859-1', 'UTF-8')
-                    const html = iconv.convert(Buffer.concat(chunks))
+                    const html = Buffer.concat(chunks).toString()
 
                     const $ = cheerio.load(html)
                     let per = {}

@@ -3,6 +3,8 @@ const cheerio = require('cheerio')
 const querystring = require('querystring')
 const Iconv = require('iconv').Iconv
 const url = require('url')
+
+const byCourseSearch = require('../utils/urls').urls.byCourseSearch
 const somethingWentWrong = require('../utils/errors').errors.somethingWentWrong
 
 exports.grupos_subj_det = {
@@ -35,9 +37,9 @@ exports.grupos_subj_det = {
             const query = querystring.stringify(data)
 
             const options = {
-                hostname: 'guayacan.uninorte.edu.co',
+                hostname: byCourseSearch.hostname,
                 port: 443,
-                path: '/registro/resultado_curso1.asp',
+                path: byCourseSearch.path,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -63,7 +65,7 @@ exports.grupos_subj_det = {
                                 subject_name: $('p.msg1', elem).text(),
                                 dep_name: $('p:nth-child(2)', elem).text(),
                                 det_asign: $('p:nth-child(3)', elem).text().split('\n\t\t\t'),
-                                cupos: $('p:nth-child(6)', elem).text().split('\n\t\t\t'),
+                                cupos: $('p:nth-child(6)', elem).text().split('\t\t\t\t'),
                                 dates: $('p.msg3', elem).text().split('\n')
                             }
 
@@ -111,8 +113,8 @@ exports.grupos_subj_det = {
                                     }
 
                                     let professor = {
-                                        first_name: row[5].split(',')[1].trim(),
-                                        last_name: row[5].split(',')[0].trim()
+                                        first_name: row[5].split('-')[1].trim(),
+                                        last_name: row[5].split('-')[0].trim()
                                     }
 
                                     /**
